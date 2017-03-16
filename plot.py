@@ -238,10 +238,11 @@ def find_circuit_params(V_sc, I_sc, W_sc):
     """
         Returns the equivalent circuit parameters.
     """
-    z_01 = float(V_sc) / I_sc
+    z_01 = float(1.732 * V_sc) / I_sc
     r_01 = float(W_sc) / (I_sc * I_sc)
-    cos_theta_sc = float(W_sc) / (1.732 * V_sc * I_sc)
+    cos_theta_sc = float(3 * W_sc) / (1.732 * V_sc * I_sc)
     x_01 = math.sqrt(z_01 * z_01 - r_01 * r_01)
+    print z_01, r_01, x_01
     return z_01, r_01, x_01
 
 
