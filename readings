@@ -1,10 +1,10 @@
 #Nameplate Details :- V, I, W, N
-400, 7.5, 3700, 1425
+415, 7.5, 3700, 1430
 #No Load Details :- V, I, W1, W2
-400, 3.1, 464, 704
+415, 3.9, 168, 864
 #Blocked Rotor Details :- V, I, W
-100, 7.5, 720
+86, 7.5, 275
 #Stator Resistance
-3
+4.472
 #No of poles
 4

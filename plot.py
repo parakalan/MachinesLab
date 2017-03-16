@@ -4,15 +4,16 @@ import math
 
 def eff_vs_slip(V_rtd, I_rtd, W_rtd, constant_losses):
     """
-    Efficiency vs Slip for two different loads
+        Efficiency vs Slip for two different loads
 
-    @params:
-        V_rtd - Rated voltage
-        I_rtd - Rated current
-        W_rtd - Rated power
-        Rs    - Stator resistance
+        @params:
+            V_rtd - Rated voltage
+            I_rtd - Rated current
+            W_rtd - Rated power
+            Rs    - Stator resistance
     """
-    loads = [0, 1]
+    loads = [0.3, 0.6]
+    plots = []
     for load in loads:
         x = [0]
         y = [0]
@@ -23,7 +24,8 @@ def eff_vs_slip(V_rtd, I_rtd, W_rtd, constant_losses):
             efficiency = float(p_out) / p_in
             y.append(efficiency)
             x.append(slip)
-        plt.plot(x, y)
+        plots.append(plt.plot(x, y, label = load))
+    #plt.legend(handles=plots)
     plt.xlabel('Slip')
     plt.ylabel('Efficiency')
     plt.title('Efficiency vs Slip')
@@ -33,13 +35,13 @@ def eff_vs_slip(V_rtd, I_rtd, W_rtd, constant_losses):
 
 def torque_vs_slip(V_rtd, N_rtd, R_01, X_01, Rs):
     """
-    Developed torque versus slip
+        Developed torque versus slip
 
-    @params:
-        V_rtd - Rated voltage
-        N_rtd - Rated speed
-        R_01  - Equivalent resistance referred to stator
-        Rs    - Stator resistance
+        @params:
+            V_rtd - Rated voltage
+            N_rtd - Rated speed
+            R_01  - Equivalent resistance referred to stator
+            Rs    - Stator resistance
     """
     k = 3 * 60 / (2 * 3.14 * N_rtd)
     E_2 = float(V_rtd) / 1.732
@@ -66,15 +68,15 @@ def torque_vs_slip(V_rtd, N_rtd, R_01, X_01, Rs):
 
 def stator_current_vs_slip(V_rtd, R_01, X_01, Rw, Xm, Rs):
     """
-    Stator current vs slip
+        Stator current vs slip
 
-    @params:
-        R_01  - Equivalent resistance referred to stator 
-        X_01  - Equivalent reactance referred to stator
-        Xm    - Shunt reactance 
-        Rw    - Rhunt Resistance
-        Rs    - Stator resistance
-        V_rtd - Rated voltage
+        @params:
+            R_01  - Equivalent resistance referred to stator
+            X_01  - Equivalent reactance referred to stator
+            Xm    - Shunt reactance
+            Rw    - Rhunt Resistance
+            Rs    - Stator resistance
+            V_rtd - Rated voltage
     """
 
     Z_01 = complex(R_01, X_01)
@@ -100,9 +102,9 @@ def stator_current_vs_slip(V_rtd, R_01, X_01, Rw, Xm, Rs):
 
 def speed_vs_supply_voltage(V_rtd, N_rtd, R_01, R_s):
     """
-    Speed vs supply voltage
+        Speed vs supply voltage
 
-    @params:
+        @params:
     """
     frequencies = [50, 60]
     T = 20
@@ -114,7 +116,7 @@ def speed_vs_supply_voltage(V_rtd, N_rtd, R_01, R_s):
         for V_s in range(2, int(V_rtd), 1):
             Ns = 120 * frequency / P
             X = 2 * 3.14 * T / 60
-            Y = 3 * V_s * V_s / (R_2 * N_rtd)
+            Y = 3 * V_s * V_s / (R_2 * Ns)
             Z = 3 * V_s * V_s / R_2
             N = float(Z) / (X + Y)
             x.append(V_s)
@@ -127,28 +129,42 @@ def speed_vs_supply_voltage(V_rtd, N_rtd, R_01, R_s):
     plt.show()
 
 
-def speed_vs_rotor_resistance(V_rtd, R_01, X_01, Rw, Xm, Rs):
+def speed_vs_rotor_resistance(V_rtd, N_rtd):
     """
-    Speed vs rotor resistance
+        Speed vs rotor resistance
 
-    @params:
-    R_01  - Equivalent resistance referred to stator 
-    X_01  - Equivalent reactance referred to stator
-    Xm    - Shunt reactance 
-    Rw    - Rhunt Resistance
-    Rs    - Stator resistance
-    V_rtd - Rated voltage
+        @params:
+            R_01  - Equivalent resistance referred to stator
+            X_01  - Equivalent reactance referred to stator
+            Xm    - Shunt reactance
+            Rw    - Rhunt Resistance
+            Rs    - Stator resistance
+            V_rtd - Rated voltage
     """
 
-    torques = []
-
-
-"""
-Predetermine the performance
-"""
+    torques = [15, 20]
+    for T in torques:
+        x = []
+        y = []
+        for R_2 in range(10, 200):
+            X = 2 * 3.14 * T / 60
+            Y = float(3 * V_rtd * V_rtd) / (R_2 * N_rtd)
+            Z = float(3 * V_rtd * V_rtd) / R_2
+            N = Z / (X + Y)
+            x.append(R_2)
+            y.append(N)
+        plt.plot(x, y)
+    plt.xlabel('Rotor resistance R2')
+    plt.ylabel('Speed N')
+    plt.title("Speed vs rotor_resistance")
+    plt.savefig('plots/speed_vs_rotor_resistance.png')
+    plt.show()
 
 
 def plot_performance(nameplate_details, constant_losses, equivalent_resistance):
+    """
+        Predetermine the performance
+    """
     efficiency = []
     output_power = []
     for i in range(0, 101, 10):
@@ -220,10 +236,10 @@ def mach_params(V, W1, W2, I, R01):
 
 def find_circuit_params(V_sc, I_sc, W_sc):
     """
-    Returns the equivalent circuit parameters.
+        Returns the equivalent circuit parameters.
     """
     z_01 = float(V_sc) / I_sc
-    r_01 = float(W_sc) / (3 * I_sc * I_sc)
+    r_01 = float(W_sc) / (I_sc * I_sc)
     cos_theta_sc = float(W_sc) / (1.732 * V_sc * I_sc)
     x_01 = math.sqrt(z_01 * z_01 - r_01 * r_01)
     return z_01, r_01, x_01
@@ -269,3 +285,4 @@ if __name__ == '__main__':
     )
     speed_vs_supply_voltage(nameplate_details[0], nameplate_details[
                             3], circuit_params[1], R_s)
+    speed_vs_rotor_resistance(nameplate_details[0], nameplate_details[3])
